@@ -1,0 +1,45 @@
+import random
+
+def divide_students(students, num_groups, cannot_be_together=None):
+    random.shuffle(students)  # Shuffle the list of students to randomize the groups
+    groups = [[] for _ in range(num_groups)]  # Create empty groups
+    cannot_be_together = cannot_be_together or set()  # Initialize cannot_be_together if not provided
+    
+    # Sort students based on the number of constraints they have
+    students.sort(key=lambda student: sum((student, other) in cannot_be_together or (other, student) in cannot_be_together for other in students), reverse=True)
+    
+    # Distribute students as evenly as possible
+    for i, student in enumerate(students):
+        group_index = i % num_groups  # Distribute students evenly among groups
+        groups[group_index].append(student)
+        
+        # Update the cannot_be_together set for the newly assigned student
+        cannot_be_together |= {(student, other_student) for other_student in groups[group_index] if other_student != student}
+    
+    return groups
+
+def main():
+    students = [
+        "James", "John", "Michael C.", "Michael P.", "David",
+        "Cole", "May", "Brian", "Dwayne", "Gavin",
+        "Ryan", "Shahood", "Marcos", "Jaiden", "Nathan",
+        "Mason", "Leo", "Muntag", "Aiden", "Chris"  ]
+    
+    num_groups = int(input("This class has 20 kids! It is your job to divide them into groups! How many groups should we split this class into? "))
+    
+    # Prompt the user to specify pairs of students who cannot be together
+    cannot_be_together = set()
+    while True:
+        pair = input("Enter a pair of students who cannot be together (separated by a comma), or press enter to finish: ")
+        if pair.strip() == "":
+            break
+        student1, student2 = pair.split(",")
+        cannot_be_together.add((student1.strip(), student2.strip()))
+
+    groups = divide_students(students, num_groups, cannot_be_together)
+    
+    for i, group in enumerate(groups, 1):
+        print(f"Group {i}: {', '.join(group)}")
+
+if __name__ == "__main__":
+    main()
